@@ -24,3 +24,6 @@ pids
 .vscode/
 .idea/
 *.swp
+
+# additonal
+comands.txt
