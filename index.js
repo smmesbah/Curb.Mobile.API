@@ -3,7 +3,7 @@ import colors from 'colors';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
-
+import authRoutes from './routes/authRoutes.js';
 
 
 //config env
@@ -24,8 +24,7 @@ app.use(express.json());
 
 
 //routes
-
-
+app.use('/api/v1/auth', authRoutes);
 
 
 

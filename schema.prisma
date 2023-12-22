@@ -7,6 +7,22 @@ datasource db {
      url = env("DATABASE_URL")
 }
 
+model user{
+    id Int @id @default(autoincrement())
+    name String @db.VarChar(255)
+    email String @db.VarChar(255) @unique
+    hashPassword String @db.VarChar(255)
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model otp {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+}
+
 model book_stores {
     id Int @id @default(autoincrement())
     name String @db.VarChar(255) @unique
