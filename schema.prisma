@@ -12,6 +12,8 @@ model user{
     name String @db.VarChar(255)
     email String @db.VarChar(255) @unique
     hashPassword String @db.VarChar(255)
+    UserMetadata user_metadata?
+    UserGoals user_goals[]
     createdAt DateTime @default(now())
     updateAt DateTime @updatedAt
 }
@@ -23,6 +25,37 @@ model otp {
   createdAt DateTime @default(now())
 }
 
+model user_metadata{
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int @unique
+    ageRange AgeRange
+    gender Gender
+    postcode String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model user_goals {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int 
+    goal String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+enum AgeRange {
+    AGE_18_29
+    AGE_30_49
+    AGE_OVER_50
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
 model book_stores {
     id Int @id @default(autoincrement())
     name String @db.VarChar(255) @unique

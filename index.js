@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/authRoutes.js';
-
+import onboardingRoutes from './routes/onboardingRoutes.js';
 
 //config env
 dotenv.config();
@@ -25,7 +25,7 @@ app.use(express.json());
 
 //routes
 app.use('/api/v1/auth', authRoutes);
-
+app.use('/api/v1/onboarding',onboardingRoutes)
 
 
 //test api

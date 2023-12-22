@@ -37,7 +37,7 @@ export const sendOTP = async ( email, subject, message, otp_num ) => {
         });
 
         const data = await resend.emails.send({
-            from: "Curb <onboarding@resend.dev>",
+            from: "Curb <team@curb.health>",
             to: [email],
             subject: subject,
             html: "<strong>"+ message+ " " + otp + "</strong>",
