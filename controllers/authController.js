@@ -1,7 +1,7 @@
 import JWT from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { generateOTP, sendOTP } from '../helpers/emailVerificationOTP.js';
-import { hashPassword } from '../helpers/authHelper.js';
+import { comparePassword, hashPassword } from '../helpers/authHelper.js';
 
 const prisma = new PrismaClient();
 
@@ -80,7 +80,7 @@ export const sendOtpToEmail = async (req, res) => {
             message: 'OTP sent successfully',
             data: data,
             email: email,
-            otp: otp
+            // otp: otp
         });
     } catch (error) {
         console.log(error);
@@ -145,14 +145,14 @@ export const verifyOTP = async (req, res) => {
 export const createUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        if(!name){
-            return res.send({message:"Name is Required"});
+        if (!name) {
+            return res.send({ message: "Name is Required" });
         }
-        if(!email){
-            return res.send({message:"Email is Required"});
+        if (!email) {
+            return res.send({ message: "Email is Required" });
         }
-        if(!password){
-            return res.send({message:"password is Required"});
+        if (!password) {
+            return res.send({ message: "password is Required" });
         }
 
         // check if user already exist
@@ -176,7 +176,7 @@ export const createUser = async (req, res) => {
             data: {
                 name: name,
                 email: email,
-                hashPassword:hashedPassword
+                hashPassword: hashedPassword
             }
         })
         return res.status(200).send({
@@ -191,5 +191,132 @@ export const createUser = async (req, res) => {
             message: 'Internal server error',
             error: error
         })
+    }
+}
+
+export const loginController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        //validation
+        if (!email || !password) {
+            return res.status(400).send({
+                success: false,
+                message: 'Please provide email and password'
+            })
+        }
+
+        // check if user exist
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: 'Email is not registered'
+            })
+        }
+        const match = await comparePassword(password, user.hashPassword);
+        if (!match) {
+            return res.status(200).send({
+                success: false,
+                message: 'Invalid credentials'
+            })
+        }
+
+        //token
+        const token = await JWT.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        return res.status(200).send({
+            success: true,
+            message: 'login successfully',
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+            },
+            token: token,
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({
+            success: false,
+            message: 'Internal server error',
+            error: error
+        })
+    }
+}
+
+export const forgetPasswordController = async (req, res) => {
+    try {
+        const { email } = req.body;
+        //validation
+        if (!email) {
+            return res.send({ message: "Email is Required" });
+        }
+
+        // check if user exist
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: 'Email is not registered'
+            })
+        }
+        // generate OTP
+        const otp = generateOTP();
+        // store the otp into the database and sent it to the user email
+        const data = await sendOTP(email, 'OTP for email verification', 'Verify your email with the code below', otp);
+
+        return res.status(200).json({
+            success: true,
+            message: 'OTP sent successfully',
+            data: data,
+            email: email,
+            // otp: otp
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+        });
+    }
+}
+
+export const resetPasswordController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        //validation
+        if (!email) {
+            return res.send({ message: "Email is Required" });
+        }
+        if (!password) {
+            return res.send({ message: "password is Required" });
+        }
+
+        // update the password
+        const hashedPassword = await hashPassword(password);
+        const updatedUser = await prisma.user.update({
+            where: {
+                email: email
+            },
+            data: {
+                hashPassword: hashedPassword
+            }
+        })
+        return res.status(200).send({
+            success: true,
+            message: 'Password updated successfully',
+            data: updatedUser
+        })
+    } catch (error) {
+
     }
 }

@@ -42,7 +42,15 @@ export const sendOTP = async ( email, subject, message, otp_num ) => {
             subject: subject,
             html: "<strong>"+ message+ " " + otp + "</strong>",
           });
-
+        // console.log(data);
+        //if email send unsuccessfull 
+        if(data.error !== null){
+            await prisma.otp.delete({
+                where: {
+                    email: email
+                }
+            })
+        }
         return data;
     } catch (error) {
         console.log(error);
