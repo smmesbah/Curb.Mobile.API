@@ -1,11 +1,17 @@
 import { PrismaClient } from "@prisma/client";
+import { jwtDecode } from "../helpers/authHelper.js";
 
 const prisma = new PrismaClient();
 
 export const userMetadataController = async (req, res) => {
     try {
-        const { userId, ageRange, gender, postcode } = req.body;
+        const { token, ageRange, gender, postcode } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
         // validation
+
+        console.log(userId)
         if (!userId) {
             return res.status(400).send({
                 message: 'userId is required'
@@ -107,7 +113,10 @@ export const getUserMetadataController = async (req, res) => {
 
 export const createUserGoalsController = async (req, res) => {
     try {
-        const { userId, goals } = req.body;
+        const { token, goals } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
 
         //Delete existing user goals for the specified userId
         await prisma.user_goals.deleteMany({
@@ -177,7 +186,10 @@ export const getUserGoalsController = async (req, res) => {
 
 export const createUserWeeklyDrinkController = async (req, res) => {
     try {
-        const { userId, day, drinkType, drinkName, drinkVolume, drinkQuantity } = req.body;
+        const { token, day, drinkType, drinkName, drinkVolume, drinkQuantity } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
 
         // store the data in the databse
         const createUserWeeklyDrink = await prisma.weekly_drink_info.create({
