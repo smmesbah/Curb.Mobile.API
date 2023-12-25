@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 
@@ -91,5 +92,51 @@ export const getWhyAnswerOfUserController = async(req, res) => {
             message: 'Something went wrong while fetching answers',
             error
         })
+    }
+}
+
+export const getTodaysTaskOfUserController = async(req, res) => {
+    try {
+        const {id} = req.params;
+        const userId = parseInt(id);
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+
+        // now calculate the week number of the user
+        const createdAt = new Date(user.createdAt);
+        console.log(createdAt)
+        const today = new Date();
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+        // Calculate the difference between today and createdAt in milliseconds
+        const differenceInMilliseconds = today - createdAt;
+
+        // Calculate the day number
+        const dayNumber = Math.ceil(differenceInMilliseconds / millisecondsPerDay);
+
+        // Fetch tasks from Strapi API
+        const response = await axios.get(`${process.env.STRAPI_BASE_URL}/tasks/`, {
+            headers: {
+                Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`
+            }
+        });
+
+        // Filter tasks for the current day
+        const currentDayTasks = response.data.data.filter(task => task.attributes.day === dayNumber);
+        return res.status(200).json({
+            success: true,
+            message: `Tasks for week ${dayNumber} fetched successfully.`,
+            data: currentDayTasks
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while fetching tasks.',
+            error: error
+        });
     }
 }
