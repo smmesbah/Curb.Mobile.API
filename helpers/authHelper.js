@@ -20,7 +20,7 @@ export const jwtDecode = async(token) => {
         const value = JWT.verify(token, process.env.JWT_SECRET);
         return {
             success: true,
-            value: value
+            value
         };
     } catch (error) {
         return {
