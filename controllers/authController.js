@@ -1,7 +1,7 @@
 import JWT from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { generateOTP, sendOTP } from '../helpers/emailVerificationOTP.js';
-import { comparePassword, hashPassword } from '../helpers/authHelper.js';
+import { comparePassword, hashPassword, jwtDecode } from '../helpers/authHelper.js';
 
 const prisma = new PrismaClient();
 
@@ -227,7 +227,11 @@ export const loginController = async (req, res) => {
         }
 
         //token
-        const token = await JWT.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = await JWT.sign({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        console.log(token)
+        const decodedToken = await jwtDecode(token);
+        console.log(decodedToken)
+
         return res.status(200).send({
             success: true,
             message: 'login successfully',
@@ -238,6 +242,8 @@ export const loginController = async (req, res) => {
             },
             token: token,
         })
+
+    
     } catch (error) {
         console.log(error)
         return res.status(500).send({
@@ -318,5 +324,24 @@ export const resetPasswordController = async (req, res) => {
         })
     } catch (error) {
 
+    }
+}
+
+export const secretController = async (req, res) => {
+    try{
+        const {token}=req.params;
+        console.log(token)
+        const decodedToken = await jwtDecode(token);
+        console.log("decoded token",decodedToken)
+        return res.status(200).send({
+            data: decodedToken
+        })
+
+    }catch{
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+        });
     }
 }

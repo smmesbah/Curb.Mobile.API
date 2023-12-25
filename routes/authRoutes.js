@@ -5,7 +5,8 @@ import {
     createUser,
     loginController,
     forgetPasswordController,
-    resetPasswordController
+    resetPasswordController,
+    secretController
 } from '../controllers/authController.js';
 
 
@@ -30,5 +31,8 @@ router.post('/forget-password', forgetPasswordController);
 
 //Reset Password || POST
 router.put('/reset-password', resetPasswordController);
+
+//jwt decode || GET
+router.get('/jwt-decode/:token', secretController);
 
 export default router;
