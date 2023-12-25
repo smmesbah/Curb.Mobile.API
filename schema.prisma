@@ -15,6 +15,7 @@ model user{
     UserMetadata user_metadata?
     UserGoals user_goals[]
     WeeklyDrinkInfo weekly_drink_info[]
+    YouWhyAnswers your_why_answers[]
     createdAt DateTime @default(now())
     updateAt DateTime @updatedAt
 }
@@ -80,6 +81,17 @@ model drinking_insights {
     @@unique([ageGroup, gender, habit], name: "UniqueInsightConstraint")
 }
 
+model your_why_answers {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int
+    strapiId Int
+    answer String @default("")
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+
+    @@unique([userId, strapiId], name: "UniqueAnswerConstraint")
+}
 enum AgeRange {
     AGE_16_24
     AGE_25_34
