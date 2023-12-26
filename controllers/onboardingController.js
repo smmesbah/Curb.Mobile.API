@@ -11,7 +11,7 @@ export const userMetadataController = async (req, res) => {
         const userId=data.id
         // validation
 
-        console.log(userId)
+        // console.log(userId)
         if (!userId) {
             return res.status(400).send({
                 message: 'userId is required'
@@ -220,14 +220,15 @@ export const createUserWeeklyDrinkController = async (req, res) => {
 
 export const deleteUserWeeklyDrinkController = async (req, res) => {
     try {
-        const { userId, day, drinkType, drinkName, drinkVolume, drinkQuantity } = req.body;
-
+        const { token, day, drinkName, drinkVolume, drinkQuantity } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
         // delete the entry from the database
         const deleteUserWeeklyDrink = await prisma.weekly_drink_info.deleteMany({
             where: {
                 userId,
                 day,
-                drinkType,
                 drinkName,
                 drinkVolume,
                 drinkQuantity
@@ -251,8 +252,12 @@ export const deleteUserWeeklyDrinkController = async (req, res) => {
 
 export const getUserWeeklyDrinkController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const token = req.params;
+        const decodedToken = await jwtDecode(token.id);
+        // console.log(token)
+        const data=decodedToken.value
+        // console.log(data)
+        const userId = parseInt(data.id);
         // validation
         if (!userId) {
             return res.status(400).send({
@@ -298,7 +303,11 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
                 userId: userId
             }
         })
-
+        // console.log(user_metadata)
+        // const user_metadata={
+        //     ageRange: "AGE_25_34",
+        //     gender: "MALE"
+        // }
         const user_drinking_habit = await prisma.weekly_drink_info.findMany({
             where: {
                 userId: userId
@@ -309,7 +318,7 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
                 drinkQuantity: true,
             }
         })
-
+        console.log(user_drinking_habit)
         const drinkFormula = await prisma.drink_formula.findMany({});
         const spendPerWeek = calculateWeeklySpend(user_drinking_habit, drinkFormula).toPrecision(6);
         const totalCaloriesConsumed = calculateTotalUserCalories(user_drinking_habit, drinkFormula);
@@ -474,6 +483,7 @@ async function calculateInsights(user_metadata, totalDrinkUnitsConsumed) {
             insight: true
         }
     })
+
 
     return drinkingInsight;
 }
