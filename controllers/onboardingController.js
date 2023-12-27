@@ -328,22 +328,6 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
         // console.log(`Total Drink Units Consumed: ${totalDrinkUnitsConsumed}`);
 
         const insights = await calculateInsights(user_metadata, totalDrinkUnitsConsumed);
-        // console.log(insights);
-        // const pintLagerConsumed = calculateDrinkConsumption(user_drinking_habit, 'Lager', 'Pint');
-        // const halfLagerConsumed = calculateDrinkConsumption(user_drinking_habit, 'Lager', 'Half');
-        // const bottleLagerConsumed = calculateDrinkConsumption(user_drinking_habit, 'Lager', 'Bottle');
-        // const pintAleConsumed = calculateDrinkConsumption(user_drinking_habit, 'Ale', 'Pint');
-        // const halfAleConsumed = calculateDrinkConsumption(user_drinking_habit, 'Ale', 'Half');
-        // const bottleAleConsumed = calculateDrinkConsumption(user_drinking_habit, 'Ale', 'Bottle');
-        // const pintStoutConsumed = calculateDrinkConsumption(user_drinking_habit, 'Stout', 'Pint');
-        // const halfStoutConsumed = calculateDrinkConsumption(user_drinking_habit, 'Stout', 'Half');
-        // const bottleStoutConsumed = calculateDrinkConsumption(user_drinking_habit, 'Stout', 'Bottle');
-        // const wine_175mlConsumed = calculateDrinkConsumption(user_drinking_habit, 'Wine', '175ml');
-        // const wine_250mlConsumed = calculateDrinkConsumption(user_drinking_habit, 'Wine', '250ml');
-        // const wine_750mlConsumed = calculateDrinkConsumption(user_drinking_habit, 'Wine', '750ml');
-
-        // const totalCalories = (pintLagerConsumed * 222 + halfLagerConsumed * 111 + bottleLagerConsumed * 111 + pintAleConsumed * 222 + halfAleConsumed * 111 + bottleAleConsumed * 167 + pintStoutConsumed * 250 + halfStoutConsumed * 125 + bottleStoutConsumed * 167 + wine_175mlConsumed * 178 + wine_250mlConsumed * 254 + wine_750mlConsumed * 763);
-        // const totalUnits = (pintLagerConsumed * 2 + halfLagerConsumed * 1.4 + bottleLagerConsumed * 1.4 + pintAleConsumed * 2.8 + halfAleConsumed * 1.4 + bottleAleConsumed * 2.1 + pintStoutConsumed * 3.2 + halfStoutConsumed * 1.6 + bottleStoutConsumed * 2.1 + wine_175mlConsumed * 2.3 + wine_250mlConsumed * 3.3 + wine_750mlConsumed * 9.9);
 
         return res.status(200).send({
             success: true,
@@ -385,7 +369,7 @@ function calculateDrinkConsumption(userDrinkingHabit, drinkName, drinkVolume) {
 }
 
 // weekly spend calculation
-function calculateWeeklySpend(userDrinkingHabit, drinkFormula) {
+export function calculateWeeklySpend(userDrinkingHabit, drinkFormula) {
     let totalSpend = 0;
 
     userDrinkingHabit.forEach((drink) => {
@@ -404,7 +388,7 @@ function calculateWeeklySpend(userDrinkingHabit, drinkFormula) {
 }
 
 // calories calculation
-function calculateTotalUserCalories(userDrinkingHabit, drinkFormula) {
+export function calculateTotalUserCalories(userDrinkingHabit, drinkFormula) {
     let totalCalories = 0;
 
     userDrinkingHabit.forEach((drink) => {
@@ -421,7 +405,7 @@ function calculateTotalUserCalories(userDrinkingHabit, drinkFormula) {
 }
 
 //total unit calculation
-function calculateTotalDrinkUnits(userDrinkingHabit, drinkFormula) {
+export function calculateTotalDrinkUnits(userDrinkingHabit, drinkFormula) {
     let totalUnits = 0;
 
     userDrinkingHabit.forEach((drink) => {

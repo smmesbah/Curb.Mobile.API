@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/authRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
 import homeRoutes from './routes/homeRoutes.js';
+import checkinRoutes from './routes/checkinRoutes.js';
 
 //config env
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/onboarding',onboardingRoutes)
 app.use('/api/v1/home', homeRoutes);
+app.use('/api/v1/checkin', checkinRoutes);
 
 
 //test api
