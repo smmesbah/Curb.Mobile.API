@@ -5,7 +5,8 @@ import {
     getTodaysTaskOfUserController,
     getAllTaskOfUserController,
     getMoneyCaloriesUnitsAvoidedOfUserController,
-    getDrinkFreeDaysOfCurrentMonthOfUserController
+    getDrinkFreeDaysOfCurrentMonthOfUserController,
+    getCalenderDrinkFreeDaysController
 } from '../controllers/homeController.js'
 
 
@@ -30,5 +31,8 @@ router.get('/calculation/:token', getMoneyCaloriesUnitsAvoidedOfUserController)
 
 //calculation of drink free days of current month || Method GET
 router.get('/drink-free-days/:token', getDrinkFreeDaysOfCurrentMonthOfUserController)
+
+// get drink free days for calender in "2023-12-01" format of current month || Method GET
+router.get('/drink-free-days-calender/:token', getCalenderDrinkFreeDaysController)
 
 export default router;

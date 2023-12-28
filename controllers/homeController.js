@@ -369,6 +369,74 @@ export const getDrinkFreeDaysOfCurrentMonthOfUserController = async (req, res) =
     }
 }
 
+export const getCalenderDrinkFreeDaysController = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data = decodedToken.value
+        const userId = data.id;
+        const currentDate = new Date();
+
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+        const formattedFirstDayOfMonth = firstDayOfMonth.toLocaleDateString('en-GB');
+        const formattedLastDayOfMonth = lastDayOfMonth.toLocaleDateString('en-GB');
+
+        // console.log(formattedFirstDayOfMonth);
+        // console.log(formattedLastDayOfMonth);
+
+        const drinkEntriesWithinCurrentMonth = await prisma.daily_drink_checkin.findMany({
+            where: {
+                userId: userId,
+                drinkDate: {
+                    gte: formattedFirstDayOfMonth,
+                    lte: formattedLastDayOfMonth
+                }
+            }
+        })
+
+        // Extract day part from drinkDate field of each entry
+        const drinkDaysWithinCurrentMonth = drinkEntriesWithinCurrentMonth.map(entry => {
+            const drinkDay = parseInt(entry.drinkDate.split('/')[0]); // Extracting the day part
+            return drinkDay;
+        });
+
+        // Create an array containing all days in the current month before the current date
+        const allDaysBeforeCurrentDate = Array.from({ length: currentDate.getDate() }, (_, i) => i + 1);
+
+
+        // Find the days the user didn't drink
+        const drinkFreeDays = allDaysBeforeCurrentDate.filter(day => !drinkDaysWithinCurrentMonth.includes(day));
+
+        // console.log(currentDate.getFullYear());
+        // console.log(currentDate.getMonth().toLocaleString());
+        // const drinkFreeDays = getNonDrinkingDays(drinkEntriesWithinCurrentMonth);
+
+        const drinkFreeDates = drinkFreeDays.map(day => {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            return date.toISOString().slice(0, 10);
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Drink free days fetched successfully.',
+            data: {
+                // drinkingDays: drinkEntriesWithinCurrentMonth,
+                drinkFreeDays,
+                drinkFreeDates
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while fetching data.',
+            error: error
+        })
+    }
+}
+
 // helper function
 
 // Function to format the date as "Fri 25th, 2023"
@@ -376,3 +444,34 @@ const formatDate = (date) => {
     const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-US', options).replace(/,/g, '');
 };
+
+// get drinking days of current month before the current days
+const getNonDrinkingDays = (drinkingDays) => {
+    // Get today's date
+    const currentDate = new Date();
+  
+    // Get the first day of the current month
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  
+    // Get the current date in YYYY-MM-DD format
+    const formattedCurrentDate = currentDate.toISOString().split('T')[0];
+  
+    // Generate an array of dates within the current month before the current date
+    const datesWithinMonth = [];
+    const currentDateUTC = currentDate.getTime();
+  
+    for (let date = firstDayOfMonth; date < currentDate; date.setDate(date.getDate() + 1)) {
+      if (date.getTime() < currentDateUTC) {
+        const formattedDate = date.toISOString().split('T')[0];
+        datesWithinMonth.push(formattedDate);
+      }
+    }
+  
+    // Get an array of dates when the user drank
+    const drinkingDates = drinkingDays.map((entry) => entry.drinkDate);
+  
+    // Filter out the drinking dates from the dates within the month to get non-drinking days
+    const nonDrinkingDays = datesWithinMonth.filter((date) => !drinkingDates.includes(date));
+  
+    return nonDrinkingDays;
+  };
