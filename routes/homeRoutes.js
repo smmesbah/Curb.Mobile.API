@@ -17,13 +17,13 @@ const router = express.Router()
 //create/update your why ans || Method POST
 router.post('/answer-why', createWhyAnswerController)
 //get you why ans of individual || Method POST
-router.get('/answer-why/:id', getWhyAnswerOfUserController)
+router.get('/answer-why/:token', getWhyAnswerOfUserController)
 
 //get today's task of individual || Method GET
-router.get('/this-week-task/:id', getTodaysTaskOfUserController)
+router.get('/this-week-task/:token', getTodaysTaskOfUserController)
 
 //get all tasks || Method GET
-router.get('/all-tasks/:id', getAllTaskOfUserController)
+router.get('/all-tasks/:token', getAllTaskOfUserController)
 
 //calculation money , calories, units avoided || Method GET
 router.get('/calculation/:token', getMoneyCaloriesUnitsAvoidedOfUserController)

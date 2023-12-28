@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 
 export const createWhyAnswerController = async (req, res) => {
     try {
-        const { userId, strapiId, answer } = req.body;
+        const { token, strapiId, answer } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        // console.log(data.id)
+        const userId=parseInt(data.id)
 
         // validation
         if (!userId || !strapiId || !answer) {
@@ -82,8 +86,11 @@ export const createWhyAnswerController = async (req, res) => {
 
 export const getWhyAnswerOfUserController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        // console.log(data.id)
+        const userId=parseInt(data.id)
         const userAnswers = await prisma.your_why_answers.findMany({
             where: {
                 userId
@@ -107,8 +114,11 @@ export const getWhyAnswerOfUserController = async (req, res) => {
 
 export const getTodaysTaskOfUserController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        // console.log(data.id)
+        const userId=data.id
         const user = await prisma.user.findUnique({
             where: {
                 id: userId
@@ -129,6 +139,7 @@ export const getTodaysTaskOfUserController = async (req, res) => {
         const dayNumber = Math.ceil(differenceInMilliseconds / millisecondsPerDay);
 
         // Fetch tasks from Strapi API
+        // console.log(process.env.STRAPI_API_TOKEN)
         const response = await axios.get(`${process.env.STRAPI_BASE_URL}/tasks/`, {
             headers: {
                 Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`
@@ -154,8 +165,11 @@ export const getTodaysTaskOfUserController = async (req, res) => {
 
 export const getAllTaskOfUserController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const userData=decodedToken.value
+        // console.log(data.id)
+        const userId=userData.id
         const user = await prisma.user.findUnique({
             where: {
                 id: userId
