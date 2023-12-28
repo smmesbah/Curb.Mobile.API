@@ -356,6 +356,68 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
     }
 }
 
+export const trackHkUserFromReferrelCodeController = async(req, res) => {
+    try {
+        // console.log(req.body);
+        const { token, referrelCode } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
+        // validation
+        if (!referrelCode) {
+            return res.status(404).json({
+                success: false,
+                message: 'ReferrelCode is required'
+            })
+        }
+
+        // check if the referrelCode is valid
+
+        //check if the referrelCode is already used
+        const existingReferrelCode = await prisma.track_user_HK_or_NonHK.findUnique({
+            where: {
+                referrelCodeUsed: referrelCode
+            }
+        })
+        if(existingReferrelCode){
+            return res.status(200).json({
+                success: false,
+                message: 'Referrel Code is already used'
+            })
+        }
+
+        // if the referrelCode is not already used then check if the user is HK user or Non-HK user
+        let isHKUser;
+
+        if (referrelCode.startsWith('HK')) {
+            isHKUser = true;
+        } else if (referrelCode.startsWith('NHK')) {
+            isHKUser = false;
+        }
+
+        const trackUser = await prisma.track_user_HK_or_NonHK.create({
+            data: {
+                userId: userId,
+                isHKUser: isHKUser,
+                referrelCodeUsed: referrelCode,
+            }
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: 'User tracked successfully',
+            trackedUser: trackUser
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while tracking user',
+            error: error,
+        })
+    }
+}
+
 
 //Helper function 
 
