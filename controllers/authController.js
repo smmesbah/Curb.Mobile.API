@@ -90,7 +90,7 @@ export const sendOtpToEmail = async (req, res) => {
 export const verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.params;
-        console.log(email, otp);
+        // console.log(email, otp);
 
         const existingOTP = await prisma.otp.findUnique({
             where: {
@@ -230,9 +230,9 @@ export const loginController = async (req, res) => {
 
         //token
         const token = await JWT.sign({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        console.log(token)
+        // console.log(token)
         const decodedToken = await jwtDecode(token);
-        console.log(decodedToken)
+        // console.log(decodedToken)
 
         return res.status(200).send({
             success: true,
@@ -367,9 +367,9 @@ export const resetPasswordController = async (req, res) => {
 export const secretController = async (req, res) => {
     try{
         const {token}=req.params;
-        console.log(token)
+        // console.log(token)
         const decodedToken = await jwtDecode(token);
-        console.log("decoded token",decodedToken)
+        // console.log("decoded token",decodedToken)
         return res.status(200).send({
             data: decodedToken
         })

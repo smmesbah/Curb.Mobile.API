@@ -7,7 +7,8 @@ import {
     createUserWeeklyDrinkController,
     deleteUserWeeklyDrinkController,
     getUserWeeklyDrinkController,
-    calculateUserDrinkingInsightsController
+    calculateUserDrinkingInsightsController,
+    trackHkUserFromReferrelCodeController
 } from '../controllers/onboardingController.js';
 
 
@@ -36,18 +37,14 @@ router.delete('/weekly-drink', deleteUserWeeklyDrinkController)
 //get all drink || Method GET
 router.get('/weekly-drink/:id', getUserWeeklyDrinkController)
 
-// number% women/men calculation || GET
+// number% women/men calculationn and money spend(week, month, year) || GET
 router.get('/user-drinking-insights/:token', calculateUserDrinkingInsightsController)
+
+// HK user or Non-HK user referrel code || POST
+router.post('/user-referrel-code', trackHkUserFromReferrelCodeController)
 
 // your rank as a drinker || GET
 
-// calculation of money spent
-
-// per week || GET
-
-// per month || GET
-
-// per year || GET
 
 
 

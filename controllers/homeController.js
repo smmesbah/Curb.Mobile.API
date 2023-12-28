@@ -263,13 +263,13 @@ export const getMoneyCaloriesUnitsAvoidedOfUserController = async (req, res) => 
         let caloriesAvoided = 0;
         let unitsAvoided = 0;
 
-        if(dailyMoneySpent < habitMoneySpent){
+        if (dailyMoneySpent < habitMoneySpent) {
             moneySaved = habitMoneySpent - dailyMoneySpent;
         }
-        if(dailyCaloriesAvoided < habitCaloriesAvoided){
-            caloriesAvoided =habitCaloriesAvoided -  dailyCaloriesAvoided;
+        if (dailyCaloriesAvoided < habitCaloriesAvoided) {
+            caloriesAvoided = habitCaloriesAvoided - dailyCaloriesAvoided;
         }
-        if(dailyUnitsAvoided < habitUnitsAvoided){
+        if (dailyUnitsAvoided < habitUnitsAvoided) {
             unitsAvoided = habitUnitsAvoided - dailyUnitsAvoided;
         }
         // console.log(moneySaved);
@@ -296,11 +296,11 @@ export const getMoneyCaloriesUnitsAvoidedOfUserController = async (req, res) => 
 }
 
 
-export const getDrinkFreeDaysOfCurrentMonthOfUserController = async(req, res) => {
+export const getDrinkFreeDaysOfCurrentMonthOfUserController = async (req, res) => {
     try {
-        const {token} = req.params;
+        const { token } = req.params;
         const decodedToken = await jwtDecode(token);
-        const data=decodedToken.value
+        const data = decodedToken.value
         const userId = data.id;
         const currentDate = new Date();
 
@@ -329,13 +329,20 @@ export const getDrinkFreeDaysOfCurrentMonthOfUserController = async(req, res) =>
             return drinkDay;
         });
 
+        // Create an array containing all days in the current month before the current date
+        const allDaysBeforeCurrentDate = Array.from({ length: currentDate.getDate() }, (_, i) => i + 1);
+
+        // Find the days the user didn't drink
+        const drinkFreeDays = allDaysBeforeCurrentDate.filter(day => !drinkDaysWithinCurrentMonth.includes(day));
+
         // console.log(drinkDaysWithinCurrentMonth);
 
         return res.status(200).json({
             success: true,
             message: 'Drink free days fetched successfully.',
             data: {
-                drinkDaysWithinCurrentMonth
+                drinkDaysWithinCurrentMonth,
+                drinkFreeDaysList: drinkFreeDays
             }
         })
     } catch (error) {
