@@ -291,9 +291,9 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
     try {
         const { token } = req.params;
         const decodedToken = await jwtDecode(token);
-        console.log(token)
+        // console.log(token)
         const data=decodedToken.value
-        console.log(data)
+        // console.log(data)
         const userId = parseInt(data.id);
         // validation
         if (!userId) {
@@ -322,7 +322,7 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
                 drinkQuantity: true,
             }
         })
-        console.log(user_drinking_habit)
+        // console.log(user_drinking_habit)
         const drinkFormula = await prisma.drink_formula.findMany({});
         const spendPerWeek = calculateWeeklySpend(user_drinking_habit, drinkFormula).toPrecision(6);
         const totalCaloriesConsumed = calculateTotalUserCalories(user_drinking_habit, drinkFormula);
