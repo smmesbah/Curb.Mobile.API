@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import { jwtDecode } from "../helpers/authHelper.js";
 import axios from "axios";
+import { calculateTotalDrinkUnits, calculateTotalUserCalories, calculateWeeklySpend } from "./onboardingController.js";
 
 const prisma = new PrismaClient();
 
@@ -201,6 +203,150 @@ export const getAllTaskOfUserController = async (req, res) => {
     }
 }
 
+export const getMoneyCaloriesUnitsAvoidedOfUserController = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data = decodedToken.value
+        const userId = data.id;
+
+        const currentDate = new Date();
+
+        // Get the current day as a string (e.g., "Monday", "Tuesday", etc.)
+        const options = { weekday: 'long' };
+        const currentDay = currentDate.toLocaleDateString('en-US', options);
+        const formattedDate = currentDate.toLocaleDateString('en-GB');
+        const weekly_drinks_info = await prisma.weekly_drink_info.findMany({
+            where: {
+                userId: userId,
+                day: currentDay
+                // userId: 1,
+                // day: 'Monday'
+            },
+            select: {
+                drinkName: true,
+                drinkVolume: true,
+                drinkQuantity: true
+            }
+        })
+        const drinkFormula = await prisma.drink_formula.findMany({});
+        // habit 
+        const habitMoneySpent = calculateWeeklySpend(weekly_drinks_info, drinkFormula);
+        const habitCaloriesAvoided = calculateTotalUserCalories(weekly_drinks_info, drinkFormula);
+        const habitUnitsAvoided = calculateTotalDrinkUnits(weekly_drinks_info, drinkFormula);
+
+        //console log
+        // console.log(habitMoneySpent);
+        // console.log(habitCaloriesAvoided);
+        // console.log(habitUnitsAvoided);
+
+        //calculation of money, calories, units avoided for homepage
+        const drinks = await prisma.daily_drink_checkin.findMany({
+            where: {
+                userId: userId,
+                drinkDate: formattedDate,
+            },
+            select: {
+                drinkName: true,
+                drinkVolume: true,
+                drinkQuantity: true,
+            }
+        })
+        const dailyMoneySpent = calculateWeeklySpend(drinks, drinkFormula);
+        const dailyCaloriesAvoided = calculateTotalUserCalories(drinks, drinkFormula);
+        const dailyUnitsAvoided = calculateTotalDrinkUnits(drinks, drinkFormula);
+        //console.log
+        // console.log(dailyMoneySpent);
+        // console.log(dailyCaloriesAvoided);
+        // console.log(dailyUnitsAvoided);
+        let moneySaved = 0;
+        let caloriesAvoided = 0;
+        let unitsAvoided = 0;
+
+        if(dailyMoneySpent < habitMoneySpent){
+            moneySaved = habitMoneySpent - dailyMoneySpent;
+        }
+        if(dailyCaloriesAvoided < habitCaloriesAvoided){
+            caloriesAvoided =habitCaloriesAvoided -  dailyCaloriesAvoided;
+        }
+        if(dailyUnitsAvoided < habitUnitsAvoided){
+            unitsAvoided = habitUnitsAvoided - dailyUnitsAvoided;
+        }
+        // console.log(moneySaved);
+        // console.log(caloriesAvoided);
+        // console.log(unitsAvoided);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Current day fetched successfully.',
+            data: {
+                moneySaved,
+                caloriesAvoided,
+                unitsAvoided
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while fetching data.',
+            error: error
+        })
+    }
+}
+
+
+export const getDrinkFreeDaysOfCurrentMonthOfUserController = async(req, res) => {
+    try {
+        const {token} = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId = data.id;
+        const currentDate = new Date();
+
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+        const formattedFirstDayOfMonth = firstDayOfMonth.toLocaleDateString('en-GB');
+        const formattedLastDayOfMonth = lastDayOfMonth.toLocaleDateString('en-GB');
+
+        // console.log(formattedFirstDayOfMonth);
+        // console.log(formattedLastDayOfMonth);
+
+        const drinkEntriesWithinCurrentMonth = await prisma.daily_drink_checkin.findMany({
+            where: {
+                userId: userId,
+                drinkDate: {
+                    gte: formattedFirstDayOfMonth,
+                    lte: formattedLastDayOfMonth
+                }
+            }
+        })
+
+        // Extract day part from drinkDate field of each entry
+        const drinkDaysWithinCurrentMonth = drinkEntriesWithinCurrentMonth.map(entry => {
+            const drinkDay = parseInt(entry.drinkDate.split('/')[0]); // Extracting the day part
+            return drinkDay;
+        });
+
+        // console.log(drinkDaysWithinCurrentMonth);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Drink free days fetched successfully.',
+            data: {
+                drinkDaysWithinCurrentMonth
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while fetching data.',
+            error: error
+        })
+    }
+}
 
 // helper function
 
