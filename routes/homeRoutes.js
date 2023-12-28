@@ -3,7 +3,9 @@ import {
     createWhyAnswerController,
     getWhyAnswerOfUserController,
     getTodaysTaskOfUserController,
-    getAllTaskOfUserController
+    getAllTaskOfUserController,
+    getMoneyCaloriesUnitsAvoidedOfUserController,
+    getDrinkFreeDaysOfCurrentMonthOfUserController
 } from '../controllers/homeController.js'
 
 
@@ -22,5 +24,11 @@ router.get('/this-week-task/:id', getTodaysTaskOfUserController)
 
 //get all tasks || Method GET
 router.get('/all-tasks/:id', getAllTaskOfUserController)
+
+//calculation money , calories, units avoided || Method GET
+router.get('/calculation/:token', getMoneyCaloriesUnitsAvoidedOfUserController)
+
+//calculation of drink free days of current month || Method GET
+router.get('/drink-free-days/:token', getDrinkFreeDaysOfCurrentMonthOfUserController)
 
 export default router;
