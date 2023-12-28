@@ -176,7 +176,8 @@ export const createUser = async (req, res) => {
             data: {
                 name: name,
                 email: email,
-                hashPassword: hashedPassword
+                hashPassword: hashedPassword,
+                UserLoginCount: 0
             }
         })
         return res.status(200).send({
@@ -212,6 +213,7 @@ export const loginController = async (req, res) => {
             }
         })
 
+
         if (!user) {
             return res.status(404).send({
                 success: false,
@@ -239,11 +241,46 @@ export const loginController = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                userLoginCount: user.userLoginCount,
             },
             token: token,
         })
 
     
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({
+            success: false,
+            message: 'Internal server error',
+            error: error
+        })
+    }
+}
+
+export const updateLoginCountController = async(req, res) => {
+    try {
+        const {token}=req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
+
+        const user = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                userLoginCount: {
+                  increment: 1,
+                },
+              },
+        })
+
+        return res.status(200).send({
+            success: true,
+            message: 'login count updated successfully',
+            data: user
+        })
+
     } catch (error) {
         console.log(error)
         return res.status(500).send({

@@ -37,7 +37,7 @@ router.delete('/weekly-drink', deleteUserWeeklyDrinkController)
 router.get('/weekly-drink/:id', getUserWeeklyDrinkController)
 
 // number% women/men calculation || GET
-router.get('/user-drinking-insights/:id', calculateUserDrinkingInsightsController)
+router.get('/user-drinking-insights/:token', calculateUserDrinkingInsightsController)
 
 // your rank as a drinker || GET
 

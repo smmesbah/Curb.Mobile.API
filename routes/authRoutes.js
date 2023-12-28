@@ -6,7 +6,8 @@ import {
     loginController,
     forgetPasswordController,
     resetPasswordController,
-    secretController
+    secretController,
+    updateLoginCountController
 } from '../controllers/authController.js';
 
 
@@ -22,6 +23,9 @@ router.get('/verify-otp/:email/:otp', verifyOTP);
 
 //Create a new user || Method POST
 router.post('/create-user', createUser);
+
+// update login count || PUT
+router.put('/update-login-count/:token', updateLoginCountController);
 
 //Login || POST
 router.post('/login', loginController);
