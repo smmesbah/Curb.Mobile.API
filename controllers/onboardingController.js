@@ -289,8 +289,12 @@ export const getUserWeeklyDrinkController = async (req, res) => {
 
 export const calculateUserDrinkingInsightsController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        console.log(token)
+        const data=decodedToken.value
+        console.log(data)
+        const userId = parseInt(data.id);
         // validation
         if (!userId) {
             return res.status(400).send({

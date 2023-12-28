@@ -12,6 +12,7 @@ model user{
     name String @db.VarChar(255)
     email String @db.VarChar(255) @unique
     hashPassword String @db.VarChar(255)
+    userLoginCount Int @default(0)
     UserMetadata user_metadata?
     UserGoals user_goals[]
     WeeklyDrinkInfo weekly_drink_info[]
