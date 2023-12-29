@@ -7,6 +7,162 @@ datasource db {
      url = env("DATABASE_URL")
 }
 
+model user{
+    id Int @id @default(autoincrement())
+    name String @db.VarChar(255)
+    email String @db.VarChar(255) @unique
+    hashPassword String @db.VarChar(255)
+    userLoginCount Int @default(0)
+    UserMetadata user_metadata?
+    UserGoals user_goals[]
+    WeeklyDrinkInfo weekly_drink_info[]
+    YouWhyAnswers your_why_answers[]
+    DailyDrinkCheckin daily_drink_checkin[]
+    DailyHealthCheckin daily_health_checkin[]
+    TrackUserHKOrNonHK track_user_HK_or_NonHK?
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model otp {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+}
+
+model user_metadata{
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int @unique
+    ageRange AgeRange
+    gender Gender
+    postcode String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model user_goals {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int 
+    goal String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model weekly_drink_info{
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int
+    day String
+    drinkType DrinkType
+    drinkName String
+    drinkVolume String
+    drinkQuantity Int
+    createdAt DateTime @default(now())
+}
+
+model drink_formula{
+    id Int @id @default(autoincrement())
+    drinkName String @db.VarChar(255)
+    drinkVolume String @db.VarChar(255)
+    drinkPriceUK Decimal? @db.Decimal(10,4)
+    drinkPriceLondon Decimal? @db.Decimal(10,4)
+    drinkCalories Int
+    drinkUnits Decimal @db.Decimal(10,4)
+    sourceLink String?
+    createdAt DateTime @default(now())
+}
+
+model drinking_insights {
+    id Int @id @default(autoincrement())
+    ageGroup AgeRange
+    gender Gender
+    habit String
+    insight String
+
+    @@unique([ageGroup, gender, habit], name: "UniqueInsightConstraint")
+}
+
+model your_why_answers {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int
+    strapiId Int
+    answer String @default("")
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+
+    @@unique([userId, strapiId], name: "UniqueAnswerConstraint")
+}
+
+model daily_drink_checkin {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int
+    drinkType DrinkType
+    drinkName String
+    drinkVolume String
+    drinkQuantity Int
+    drinkDate String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model daily_health_checkin{
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int
+    sleep Int
+    mood Int
+    energy Int
+    willPower Int
+    places String // it will be like this : My home-Another home-Work-Restaurent-Bar-Club-Other
+    people String // it will be like this : Alone-Partner-Family-Friends-Work colleagues-Other
+    activity String // it will be like this : Watching TV-Reading-Working-Exercising-Other
+    note String? @db.VarChar(1000)
+    date String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+
+    @@unique([userId, date], name: "UniqueDailyHealthCheckinConstraint")
+}
+
+model track_user_HK_or_NonHK {
+    id Int @id @default(autoincrement())
+    User user @relation(fields: [userId], references: [id])
+    userId Int @unique
+    isHKUser Boolean @default(false)
+    referrelCodeUsed String @unique
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+enum AgeRange {
+    AGE_16_24
+    AGE_25_34
+    AGE_35_44
+    AGE_45_54
+    AGE_55_64
+    AGE_65_74
+    AGE_OVER_75
+    // AGE_18_29
+    // AGE_30_49
+    // AGE_OVER_50
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
+enum DrinkType {
+    BEER_CIDER
+    WINE_FIZZ
+    SPIRITS_SHOTS
+}
+
 model book_stores {
     id Int @id @default(autoincrement())
     name String @db.VarChar(255) @unique
