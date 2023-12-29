@@ -134,7 +134,9 @@ model track_user_HK_or_NonHK {
     User user @relation(fields: [userId], references: [id])
     userId Int @unique
     isHKUser Boolean @default(false)
-    referrelCodeUsed String @unique
+    isNonHKUser Boolean @default(false)
+    isCurbFriend Boolean @default(false)
+    isUsingFreeCurb Boolean @default(false)
     createdAt DateTime @default(now())
     updateAt DateTime @updatedAt
 }

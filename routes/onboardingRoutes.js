@@ -8,7 +8,8 @@ import {
     deleteUserWeeklyDrinkController,
     getUserWeeklyDrinkController,
     calculateUserDrinkingInsightsController,
-    trackHkUserFromReferrelCodeController
+    trackHkUserFromReferrelCodeController,
+    calculateUserDrinkAvoidController
 } from '../controllers/onboardingController.js';
 
 
@@ -25,7 +26,7 @@ router.get('/user-metadata/:id',getUserMetadataController)
 router.post('/user-goals', createUserGoalsController)
 
 //get user goals || Method GET
-router.get('/user-goals/:id', getUserGoalsController)
+router.get('/user-goals/:token', getUserGoalsController)
 
 //weekly drink apis
 //create drink || Method POST
@@ -43,7 +44,8 @@ router.get('/user-drinking-insights/:token', calculateUserDrinkingInsightsContro
 // HK user or Non-HK user referrel code || POST
 router.post('/user-referrel-code', trackHkUserFromReferrelCodeController)
 
-// your rank as a drinker || GET
+// get drink avoid calculation || GET
+router.get('/user-drink-avoid-calculation/:token', calculateUserDrinkAvoidController)
 
 
 
