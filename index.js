@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
 import homeRoutes from './routes/homeRoutes.js';
 import checkinRoutes from './routes/checkinRoutes.js';
+import profileRoutes from './routes/profileRoutes.js'
 
 //config env
 dotenv.config();
@@ -30,6 +31,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/onboarding',onboardingRoutes)
 app.use('/api/v1/home', homeRoutes);
 app.use('/api/v1/checkin', checkinRoutes);
+app.use('/api/v1/profile', profileRoutes)
 
 
 //test api
