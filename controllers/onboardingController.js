@@ -154,8 +154,10 @@ export const createUserGoalsController = async (req, res) => {
 
 export const getUserGoalsController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=parseInt(data.id)
         // validation
         if (!userId) {
             return res.status(400).send({
@@ -166,6 +168,9 @@ export const getUserGoalsController = async (req, res) => {
         const userGoals = await prisma.user_goals.findMany({
             where: {
                 userId: userId
+            },
+            select: {
+                goal: true
             }
         })
 
@@ -359,49 +364,51 @@ export const calculateUserDrinkingInsightsController = async (req, res) => {
 export const trackHkUserFromReferrelCodeController = async(req, res) => {
     try {
         // console.log(req.body);
-        const { token, referrelCode } = req.body;
+        const { token, HKUser, NonHKUser, CurbFriend, UsingFreeCurb } = req.body;
         const decodedToken = await jwtDecode(token);
         const data=decodedToken.value
         const userId=data.id
         // validation
-        if (!referrelCode) {
-            return res.status(404).json({
-                success: false,
-                message: 'ReferrelCode is required'
-            })
-        }
+        // if (!referrelCode) {
+        //     return res.status(404).json({
+        //         success: false,
+        //         message: 'ReferrelCode is required'
+        //     })
+        // }
 
         // check if the referrelCode is valid
 
         //check if the referrelCode is already used
-        const existingReferrelCode = await prisma.track_user_HK_or_NonHK.findUnique({
-            where: {
-                referrelCodeUsed: referrelCode
-            }
-        })
-        if(existingReferrelCode){
-            return res.status(200).json({
-                success: false,
-                message: 'Referrel Code is already used'
-            })
-        }
+        // const existingReferrelCode = await prisma.track_user_HK_or_NonHK.findUnique({
+        //     where: {
+        //         referrelCodeUsed: referrelCode
+        //     }
+        // })
+        // if(existingReferrelCode){
+        //     return res.status(200).json({
+        //         success: false,
+        //         message: 'Referrel Code is already used'
+        //     })
+        // }
 
         // if the referrelCode is not already used then check if the user is HK user or Non-HK user
-        let isHKUser;
 
-        if (referrelCode.startsWith('HK')) {
-            isHKUser = true;
-        } else if (referrelCode.startsWith('NHK')) {
-            isHKUser = false;
-        }
-
-        const trackUser = await prisma.track_user_HK_or_NonHK.create({
-            data: {
-                userId: userId,
-                isHKUser: isHKUser,
-                referrelCodeUsed: referrelCode,
-            }
-        })
+        const trackUser = await prisma.track_user_HK_or_NonHK.upsert({
+            where: { userId: userId },
+            create: {
+              userId: userId,
+              isHKUser: HKUser,
+              isNonHKUser: NonHKUser,
+              isCurbFriend: CurbFriend,
+              isUsingFreeCurb: UsingFreeCurb,
+            },
+            update: {
+              isHKUser: HKUser,
+              isNonHKUser: NonHKUser,
+              isCurbFriend: CurbFriend,
+              isUsingFreeCurb: UsingFreeCurb,
+            },
+          });
 
         return res.status(201).json({
             success: true,
@@ -416,6 +423,51 @@ export const trackHkUserFromReferrelCodeController = async(req, res) => {
             error: error,
         })
     }
+}
+
+export const calculateUserDrinkAvoidController = async (req, res) => {
+    const { token } = req.params;
+    const decodedToken = await jwtDecode(token);
+    const data=decodedToken.value
+    // console.log(id)
+    const userId=parseInt(data.id)
+    if(!userId){
+        return res.status(400).json({
+            success: false,
+            message: 'userId is required'
+        })
+    }
+    const user_drinking_habit=await prisma.weekly_drink_info.findMany({
+        where: {
+            userId: userId
+        },
+        select: {
+            drinkName: true,
+            drinkVolume: true,
+            drinkQuantity: true,
+        }
+    })
+
+    const drinkFormula = await prisma.drink_formula.findMany({});
+    const spendPerWeek = calculateWeeklySpend(user_drinking_habit, drinkFormula).toPrecision(6);
+    const totalCaloriesConsumed = calculateTotalUserCalories(user_drinking_habit, drinkFormula);
+    const totalDrinkUnitsConsumed = calculateTotalDrinkUnits(user_drinking_habit, drinkFormula);
+    const totalDrinkNumber = calculateDrinkNumber(user_drinking_habit);
+    // console.log(totalDrinkNumber)
+
+    return res.status(200).json({
+        success: true,
+        message: 'User drinking insights found.',
+        // user_drinking_habit,
+        data: {
+            totalCaloriesConsumed: totalCaloriesConsumed,
+            totalDrinkUnitsConsumed: totalDrinkUnitsConsumed,
+            spendPerMonth: (spendPerWeek * 4).toFixed(2),
+            totalDrinkNumber: totalDrinkNumber
+        }
+    })
+
+
 }
 
 
@@ -536,6 +588,16 @@ async function calculateInsights(user_metadata, totalDrinkUnitsConsumed) {
 
 
     return drinkingInsight;
+}
+
+export function calculateDrinkNumber(userDrinkingHabit){
+    let drinkNumber = 0;
+
+    userDrinkingHabit.forEach((drink) => {
+        drinkNumber += drink.drinkQuantity;
+    });
+
+    return drinkNumber;
 }
 
 
