@@ -6,13 +6,14 @@ const prisma = new PrismaClient();
 
 export const getProfileNameEmailController = async (req, res) => {
   try {
+    // console.log("This called again.");
     const { token } = req.params;
     const decodedToken = await jwtDecode(token);
     const data = decodedToken.value;
     // console.log(data.id);
     const userId = parseInt(data.id);
 
-    console.log(userId);
+    // console.log(userId);
 
     const user = await prisma.user.findUnique({
       where: {
@@ -20,7 +21,7 @@ export const getProfileNameEmailController = async (req, res) => {
       },
     });
 
-    console.log(user);
+    // console.log(user);
     return res.status(200).send({
       success: true,
       message: "got data successfully",
@@ -41,7 +42,7 @@ export const getProfileInfoController = async (req, res) => {
     const { token } = req.params;
     const decodedToken = await jwtDecode(token);
     const data = decodedToken.value;
-    console.log(data.id);
+    // console.log(data.id);
     const userId = parseInt(data.id);
 
     const user_metadata = await prisma.user_metadata.findUnique({
@@ -49,7 +50,7 @@ export const getProfileInfoController = async (req, res) => {
         userId: userId,
       },
     });
-    console.log(user_metadata);
+    // console.log(user_metadata);
     return res.status(200).send({
       success: true,
       message: "got data successfully",
@@ -70,7 +71,7 @@ export const updateNameEmailController = async (req, res) => {
     const { token } = req.params;
     const decodedToken = await jwtDecode(token);
     const data = decodedToken.value;
-    console.log(data.id);
+    // console.log(data.id);
     const userId = parseInt(data.id);
 
     const { name, email } = req.body;
@@ -102,7 +103,7 @@ export const updateAgeRangeController = async (req, res) => {
     const { token } = req.params;
     const decodedToken = await jwtDecode(token);
     const data = decodedToken.value;
-    console.log(data.id);
+    // console.log(data.id);
     const userId = parseInt(data.id);
     const { ageRange } = req.body;
     const age = await prisma.user_metadata.update({
@@ -133,7 +134,7 @@ export const updateGenderController = async (req, res) => {
         const { token } = req.params;
         const decodedToken = await jwtDecode(token);
         const data = decodedToken.value;
-        console.log(data.id);
+        // console.log(data.id);
         const userId = parseInt(data.id);
         const { gender } = req.body;
         const user_gender = await prisma.user_metadata.update({
@@ -164,7 +165,7 @@ export const updatePostcodeController = async (req, res) => {
         const { token } = req.params;
         const decodedToken = await jwtDecode(token);
         const data = decodedToken.value;
-        console.log(data.id);
+        // console.log(data.id);
         const userId = parseInt(data.id);
         const { postcode } = req.body;
         const user_postcode = await prisma.user_metadata.update({
