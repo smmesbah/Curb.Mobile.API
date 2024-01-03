@@ -3,12 +3,12 @@ import { PrismaClient } from "@prisma/client";
 import { Resend } from "resend";
 
 const prisma = new PrismaClient();
-// const Resend_API_KEY = process.env.RESEND_FULL_ACCESS_API_KEY
-const resend = new Resend(process.env.RESEND_FULL_ACCESS_API_KEY);
+
 
 
 export const sendOTP = async ( email, subject, message, otp_num ) => {
     try {
+        const resend = new Resend(process.env.RESEND_FULL_ACCESS_API_KEY);
         const otp = otp_num.toString();
         // console.log(email, subject, message, otp);
         if (!(email && subject && message)) {

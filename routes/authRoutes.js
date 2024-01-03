@@ -7,7 +7,8 @@ import {
     forgetPasswordController,
     resetPasswordController,
     secretController,
-    updateLoginCountController
+    updateLoginCountController,
+    isAuthenticatedController
 } from '../controllers/authController.js';
 
 
@@ -38,5 +39,8 @@ router.put('/reset-password', resetPasswordController);
 
 //jwt decode || GET
 router.get('/jwt-decode/:token', secretController);
+
+//check authentication || GET
+router.get('/isAuthenticated/:token', isAuthenticatedController);
 
 export default router;

@@ -196,8 +196,11 @@ export const createUser = async (req, res) => {
 }
 
 export const loginController = async (req, res) => {
+    // console.log("login controller")
+    // const { email, password, rememberMe } = req.body;
+    // console.log(email, password, rememberMe)
     try {
-        const { email, password } = req.body;
+        const { email, password, rememberMe } = req.body;
         //validation
         if (!email || !password) {
             return res.status(400).send({
@@ -229,7 +232,10 @@ export const loginController = async (req, res) => {
         }
 
         //token
-        const token = await JWT.sign({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        // if remember me is true then token will be valid for 7 days
+        // else token will be valid for 1 day
+        const token = await JWT.sign({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }, process.env.JWT_SECRET, { expiresIn: rememberMe ? '7d' : '1d' });
+        // const token = await JWT.sign({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }, process.env.JWT_SECRET, { expiresIn: '1d' });
         // console.log(token)
         const decodedToken = await jwtDecode(token);
         // console.log(decodedToken)
@@ -379,6 +385,31 @@ export const secretController = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Internal server error',
+        });
+    }
+}
+
+export const isAuthenticatedController = async (req, res) => {
+    try {
+        const token = req.params.token;
+        const decodedToken = await jwtDecode(token);
+        // console.log(decodedToken)
+        if (decodedToken.success) {
+            return res.status(200).json({
+                success: true,
+                message: 'User is authenticated'
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                message: 'User is not authenticated'
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
         });
     }
 }

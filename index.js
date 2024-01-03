@@ -10,7 +10,10 @@ import checkinRoutes from './routes/checkinRoutes.js';
 import profileRoutes from './routes/profileRoutes.js'
 
 //config env
-dotenv.config();
+
+dotenv.config({
+    path: `.env.${process.env.NODE_ENV}`
+});
 
 //database connection
 
@@ -174,5 +177,7 @@ const PORT = process.env.PORT || 5000;
 
 //run listen
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`.bgGreen.white.bold);
+    // console.log(`Server running on port ${PORT}`.bgGreen.white.bold);
+    console.log(`App running on ${process.env.NODE_ENV} mode`.bgYellow.white.bold)
+    console.log(`App LISTENING ON http://${process.env.HOST}:${process.env.PORT}`.bgGreen.white.bold);
 });
