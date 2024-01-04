@@ -9,7 +9,9 @@ import {
     getUserWeeklyDrinkController,
     calculateUserDrinkingInsightsController,
     trackHkUserFromReferrelCodeController,
-    calculateUserDrinkAvoidController
+    calculateUserDrinkAvoidController,
+    getOnboardingStepsController,
+    updateOnboardingStepsController
 } from '../controllers/onboardingController.js';
 
 
@@ -47,6 +49,11 @@ router.post('/user-referrel-code', trackHkUserFromReferrelCodeController)
 // get drink avoid calculation || GET
 router.get('/user-drink-avoid-calculation/:token', calculateUserDrinkAvoidController)
 
+// get onboarding steps || GET
+router.get('/onboarding-steps/:token', getOnboardingStepsController)
+
+// update onboarding steps || PUT
+router.patch('/update-onboarding-steps', updateOnboardingStepsController)
 
 
 

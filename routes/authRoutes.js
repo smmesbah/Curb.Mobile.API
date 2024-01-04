@@ -8,7 +8,9 @@ import {
     resetPasswordController,
     secretController,
     updateLoginCountController,
-    isAuthenticatedController
+    isAuthenticatedController,
+    createUserViaOTPVerificationController,
+    resendOtpToEmailController
 } from '../controllers/authController.js';
 
 
@@ -21,6 +23,12 @@ router.post('/signup', sendOtpToEmail);
 
 //OTP verification || Method GET
 router.get('/verify-otp/:email/:otp', verifyOTP);
+
+//OTP verification and create user || Method POST
+router.post('/verify-otp-and-create-user', createUserViaOTPVerificationController)
+
+//resend OTP to the email || Method POST
+router.post('/resend-otp', resendOtpToEmailController)
 
 //Create a new user || Method POST
 router.post('/create-user', createUser);
