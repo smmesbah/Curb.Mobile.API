@@ -221,6 +221,12 @@ export const createUserViaOTPVerificationController = async(req, res) => {
                         userLoginCount: 0
                     }
                 })
+                // also create a onboarding steps entry
+                const onboardingSteps = await prisma.onboarding_steps.create({
+                    data: {
+                        userId: user.id,
+                    }
+                })
                 return res.status(200).json({
                     success: true,
                     message: 'User created successfully',

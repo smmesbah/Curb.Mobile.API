@@ -470,6 +470,74 @@ export const calculateUserDrinkAvoidController = async (req, res) => {
 
 }
 
+export const getOnboardingStepsController = async(req, res) => {
+    try {
+        const {token} = req.params;
+        const decodedToken = await jwtDecode(token);
+        // console.log(decodedToken)
+        const data=decodedToken.value
+        // console.log(data)
+        const userId = parseInt(data.id);
+        // validation
+        if (!userId) {
+            return res.status(400).send({
+                message: 'userId is required'
+            })
+        }
+
+        const onboardingSteps = await prisma.onboarding_steps.findUnique({
+            where: {
+                userId: userId
+            }
+        })
+
+        return res.status(200).send({
+            success: true,
+            message: 'Onboarding steps found.',
+            data: onboardingSteps
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while fetching onboarding steps',
+            error: error,
+        })
+    }
+}
+
+export const updateOnboardingStepsController = async(req, res) => {
+    try {
+        const { token, onboardingSteps } = req.body;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId=data.id
+
+        // update the onboarding steps of the given userId
+        const updatedOnboardingSteps = await prisma.onboarding_steps.update({
+            where: { 
+                userId: userId 
+            },
+            data: {
+                stepCompleted: onboardingSteps
+            }
+        })
+
+        return res.status(201).json({
+            success: true,
+            message: `${onboardingSteps} steps updated successfully`,
+            data: updatedOnboardingSteps
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while updating onboarding steps',
+            error: error,
+        })
+    }
+}
+
 
 //Helper function 
 
