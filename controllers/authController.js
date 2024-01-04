@@ -62,7 +62,7 @@ export const sendOtpToEmail = async (req, res) => {
         })
         // if exist return error
         if (existingUser) {
-            return res.status(400).send({
+            return res.status(200).send({
                 success: false,
                 message: 'Already registered user please login.'
             })
@@ -142,6 +142,149 @@ export const verifyOTP = async (req, res) => {
     }
 };
 
+export const createUserViaOTPVerificationController = async(req, res) => {
+    try {
+        const {fullName, email, password, otp} = req.body;
+        // validation
+        if(!fullName){
+            return res.status(200).json({
+                success: false,
+                message: 'Name is not found. Please go back to Signup page and try again.'
+            })
+        }
+        if(!email){
+            return res.status(200).json({
+                success: false,
+                message: 'Email is not found. Please go back to Signup page and try again.'
+            })
+        }
+        if(!password){
+            return res.status(200).json({
+                success: false,
+                message: 'Password is not found. Please go back to Signup page and try again.'
+            })
+        }
+        if(!otp){
+            return res.status(200).json({
+                success: false,
+                message: 'OTP is required'
+            })
+        }
+        const existingOTP = await prisma.otp.findUnique({
+            where: {
+                email: email,
+                otp: otp,
+            }
+        });
+        if(existingOTP){
+            const createdAt = existingOTP.createdAt;
+            const currentTime = new Date();
+            const timeDifference = currentTime - createdAt; // Difference in milliseconds
+            const timeDifferenceInMinutes = timeDifference / (1000 * 60); // Convert to minutes
+
+            if(timeDifferenceInMinutes > 2){
+                // If OTP has expired (more than 2 minutes), delete it and respond with expired message
+                await prisma.otp.delete({
+                    where: {
+                        id: existingOTP.id,
+                    },
+                });
+
+                return res.status(200).json({
+                    success: false,
+                    message: 'OTP is expired. Please try using a new OTP.',
+                });
+            }else {
+                // create user
+                const existingUser = await prisma.user.findUnique({
+                    where: {
+                        email: email
+                    }
+                })
+
+                // if exist return error
+                if(existingUser) {
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Already registered user please login.'
+                    })
+                }
+                // if not exist create user in db
+                // register user
+                const hashedPassword = await hashPassword(password);
+                //save user
+                const user = await prisma.user.create({
+                    data: {
+                        name: fullName,
+                        email: email,
+                        hashPassword: hashedPassword,
+                        userLoginCount: 0
+                    }
+                })
+                return res.status(200).json({
+                    success: true,
+                    message: 'User created successfully',
+                    data: user
+                })
+            }
+        }else{
+            return res.status(200).json({
+                success: false,
+                message: 'OTP verification failed.',
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while verifying OTP and creating user'
+        })
+    }
+}
+
+export const resendOtpToEmailController = async(req, res) => {
+    try {
+        const {email} = req.body;
+        // validation
+        if(!email){
+            return res.status(200).json({
+                success: false,
+                message: 'Email is not found. Please go back to Signup page and try again.'
+            })
+        }
+        // delete the current otp and send a new otp
+        const existingOTP = await prisma.otp.findUnique({
+            where: {
+                email: email
+            }
+        })
+        if(existingOTP){
+            await prisma.otp.delete({
+                where: {
+                    id: existingOTP.id
+                }
+            })
+        }
+        //create an OTP
+        const otp = generateOTP();
+        // store the otp into the database and sent it to the user email
+        const data = await sendOTP(email, 'OTP for email verification', 'Verify your email with the code below', otp);
+
+        return res.status(200).json({
+            success: true,
+            message: 'OTP sent successfully',
+            data: data,
+            email: email,
+            // otp: otp
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error while resending OTP'
+        })
+    }
+}
 export const createUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
