@@ -72,8 +72,10 @@ export const userMetadataController = async (req, res) => {
 
 export const getUserMetadataController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = parseInt(id);
+        const { token } = req.params;
+        const decodedToken = await jwtDecode(token);
+        const data=decodedToken.value
+        const userId = parseInt(data.id);
         // validation
         if (!userId) {
             return res.status(400).send({
