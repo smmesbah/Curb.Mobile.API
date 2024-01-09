@@ -13,7 +13,8 @@
     "prod": "NODE_ENV=production nodemon index.js",
     "server": "nodemon index.js",
     "migrate:mysql": "dotenv -e .env.development -- npx prisma migrate dev",
-    "migrate:mysql:prod": "dotenv -e .env.production -- npx prisma migrate deploy"
+    "migrate:mysql:prod": "dotenv -e .env.production -- npx prisma migrate deploy",
+    "seed:db": "dotenv -e .env.development -- npx prisma db seed"
   },
   "author": "",
   "license": "ISC",

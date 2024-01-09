@@ -86,6 +86,15 @@ model drinking_insights {
     @@unique([ageGroup, gender, habit], name: "UniqueInsightConstraint")
 }
 
+model drinking_insights_based_on_place {
+    id Int @id @default(autoincrement())
+    place Place
+    habit String
+    insight String
+    
+    @@unique([habit, place], name: "UniquePlaceBasedInsightConstraint")
+}
+
 model your_why_answers {
     id Int @id @default(autoincrement())
     User user @relation(fields: [userId], references: [id])
@@ -155,6 +164,73 @@ model onboarding_steps {
     // step_6 Boolean @default(false) // Your week in drinking 2nd
     // step_7 Boolean @default(false) // Promo code 
 }
+
+
+model london_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model yorkshire_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model north_east_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+// model midlands_post_codes{
+//     id Int @id @default(autoincrement())
+//     postCode String @db.VarChar(255) @unique
+// }
+
+model east_midlands_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model west_midlands_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model south_west_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model south_east_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model east_of_england_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model north_west_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model scotland_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model wales_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
+model northern_ireland_post_codes{
+    id Int @id @default(autoincrement())
+    postCode String @db.VarChar(255) @unique
+}
+
 enum AgeRange {
     AGE_16_24
     AGE_25_34
@@ -166,6 +242,22 @@ enum AgeRange {
     // AGE_18_29
     // AGE_30_49
     // AGE_OVER_50
+}
+
+enum Place {
+    LONDON // okay
+    NORTH_EAST
+    NORTH_WEST //Okay
+    YORKSHIRE_AND_HUMBER 
+    EAST_MIDLANDS
+    WEST_MIDLANDS
+    EAST_OF_ENGLAND // okay
+    SOUTH_EAST // okay
+    SOUTH_WEST // okay
+    SCOTLAND // okay
+    WALES // okay
+    NORTHERN_IRELAND // okay
+    OTHER // okay
 }
 
 enum Gender {
