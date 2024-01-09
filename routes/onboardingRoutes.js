@@ -22,7 +22,7 @@ const router = express.Router()
 router.post('/user-metadata', userMetadataController)
 
 //get user metadata || Method GET
-router.get('/user-metadata/:id',getUserMetadataController)
+router.get('/user-metadata/:token',getUserMetadataController)
 
 //create user goals || Method POST
 router.post('/user-goals', createUserGoalsController)
